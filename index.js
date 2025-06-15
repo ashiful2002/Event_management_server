@@ -42,6 +42,7 @@ async function run() {
 
     const eventsCollection = client.db("eventApp").collection("events");
     const joinedCollection = client.db("eventApp").collection("joinedEvents");
+    const galleryCollection = client.db("eventApp").collection("eventGallery");
 
     // get events
     // app.get("/events", async (req, res) => {
@@ -50,6 +51,7 @@ async function run() {
     //   // console.log("user Email from middleware", userEmail);
     //   res.send(result);
     // });
+    //
     // get events
     app.get("/events", async (req, res) => {
       const { type, search } = req.query;
