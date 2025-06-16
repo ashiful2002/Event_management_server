@@ -4,27 +4,16 @@ const cors = require("cors");
 const port = process.env.PORT || 3000;
 const app = express();
 const admin = require("firebase-admin");
+const serviceAccount = require("./event-management-app-firebase-adminsdk.json");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 const uri = process.env.MONGODB_URI;
 app.use(express.json());
 app.use(cors());
 
-const varifyToken = async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer ")) {
-    return res.status(401).send({ message: "Unauthorizes" });
-  }
-  const token = authHeader.split(" ")[1];
-  try {
-    const decoded = await admin.auth().varifyIdToken(token);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    console.log(error);
-  }
-};
-
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -33,16 +22,38 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   },
 });
+// use middleware to varify token
+
+const verifyFirebaseToken = async (req, res, next) => {
+  const authHeader = req.headers?.authorization;
+
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).send({ message: "unauthorized" });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    const decoded = await admin.auth().verifyIdToken(token);
+    req.decoded = decoded;
+
+    next();
+  } catch (error) {
+    return res.status(401).send({ message: "unauthorized access" });
+  }
+};
+
+const verifiTokenEmail = (req, res, next) => {
+  if (req.params.email !== req.decoded.email) {
+    return res.status(403).send({ message: "forbidded access" });
+  }
+  next();
+};
 
 async function run() {
   try {
-    // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
-    // Send a ping to confirm a successful connection
 
     const eventsCollection = client.db("eventApp").collection("events");
     const joinedCollection = client.db("eventApp").collection("joinedEvents");
-    const galleryCollection = client.db("eventApp").collection("eventGallery");
 
     // get events
     // app.get("/events", async (req, res) => {
@@ -130,14 +141,20 @@ async function run() {
       }
     });
     // user jouned events=
-    app.get("/joined-events/:email", async (req, res) => {
-      const email = req.params.email;
-      const result = await joinedCollection
-        .find({ userEmail: email })
-        .sort({ date: 1 })
-        .toArray();
-      res.send(result);
-    });
+    app.get(
+      "/joined-events/:email",
+      verifyFirebaseToken,
+      verifiTokenEmail,
+      async (req, res) => {
+        const email = req.params.email;
+
+        const result = await joinedCollection
+          .find({ userEmail: email })
+          .sort({ date: 1 })
+          .toArray();
+        res.send(result);
+      }
+    );
     //       /joined-events
     app.get("/joined-events/:eventId", async (req, res) => {
       const { eventId } = req.params;
