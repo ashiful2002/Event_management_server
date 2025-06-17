@@ -31,14 +31,16 @@ const verifyFirebaseToken = async (req, res, next) => {
     return res.status(401).send({ message: "unauthorized" });
   }
   const token = authHeader.split(" ")[1];
+  
+  
   try {
     const decoded = await admin.auth().verifyIdToken(token);
     req.decoded = decoded;
-
     next();
   } catch (error) {
     return res.status(401).send({ message: "unauthorized access" });
   }
+ 
 };
 
 const verifiTokenEmail = (req, res, next) => {
@@ -121,7 +123,6 @@ async function run() {
     // join an event
     app.patch("/joined-events", async (req, res) => {
       const joinData = req.body;
-
       const alreadyJoined = await joinedCollection.findOne({
         eventId: joinData.eventId,
         userEmail: joinData.userEmail,
