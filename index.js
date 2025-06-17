@@ -154,6 +154,7 @@ async function run() {
       }
     );
     //joined-events
+    //add route to fetch joined events by user email
     app.get("/joined-events/:eventId", async (req, res) => {
       const { eventId } = req.params;
       const { email } = req.query;
