@@ -56,21 +56,12 @@ async function run() {
     const joinedCollection = client.db("eventApp").collection("joinedEvents");
 
     // get events
-    // app.get("/events", async (req, res) => {
-    //   // const userEmail = req.user.email;
-    //   const result = await eventsCollection.find().toArray();
-    //   // console.log("user Email from middleware", userEmail);
-    //   res.send(result);
-    // });
-    //
-    // get events
     app.get("/events", async (req, res) => {
       const { type, search } = req.query;
       const todayISOString = new Date().toISOString();
       const filter = {
         date: { $gt: todayISOString },
       };
-      // const filter = {};
       if (type) {
         filter.eventType = type;
       }
@@ -120,6 +111,13 @@ async function run() {
       });
       res.send(result);
     });
+    // post events
+    app.post("/events", async (req, res) => {
+      const eventData = req.body;
+      console.log(eventData);
+      const result = await eventsCollection.insertOne(eventData);
+      res.send(result);
+    });
     // join an event
     app.patch("/joined-events", async (req, res) => {
       const joinData = req.body;
@@ -155,7 +153,7 @@ async function run() {
         res.send(result);
       }
     );
-    //       /joined-events
+    //joined-events
     app.get("/joined-events/:eventId", async (req, res) => {
       const { eventId } = req.params;
       const { email } = req.query;
@@ -166,17 +164,7 @@ async function run() {
       });
       res.send({ joined: !!joined });
     });
-
-    // post events
-    app.post("/events", async (req, res) => {
-      const eventData = req.body;
-      console.log(eventData);
-      const result = await eventsCollection.insertOne(eventData);
-      res.send(result);
-    });
-
     // update events
-
     app.patch("/update-event/:id", async (req, res) => {
       const id = req.body.id;
     });
@@ -194,7 +182,7 @@ run().catch(console.dir);
 
 // Root route
 app.get("/", (req, res) => {
-  res.send("Event management server is running!");
+  res.send("Event managemant server is runnning");
 });
 
 // Start server
