@@ -1,5 +1,9 @@
 # 🌐 SODEV – Server
 
+
+## there was a issue in my category. different was shown in mobile app and website. in support session instructor "SHAHRIAR" vai suggest me to this category from mobile app. because i was started this before and make this as note. Thanks.
+
+
 This is the **backend server** for [SODEV (Social Development Events Platform)](https://event-management-app-b86d6.web.app/).  
 It is built with **Node.js, Express, MongoDB**, and **Firebase Admin SDK** for secure event management and authentication handling.
 
