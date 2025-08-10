@@ -13,7 +13,7 @@ app.use(cors());
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
-});
+}); 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
   serverApi: {
@@ -66,7 +66,8 @@ async function run() {
       };
       if (type) {
         filter.eventType = type;
-      }
+      } 
+      //  this is a new comment
       if (search) {
         filter.title = {
           $regex: search,
@@ -154,6 +155,8 @@ async function run() {
         res.send(result);
       }
     );
+
+    
     //joined-events
     //add route to fetch joined events by user email
     app.get("/joined-events/:eventId", async (req, res) => {
